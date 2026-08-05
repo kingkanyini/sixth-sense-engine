@@ -9,6 +9,11 @@ dependencies = [
     "opencv-python>=4.10",
     "scenedetect[opencv]>=0.6",
     "librosa>=0.10",
+    # librosa's numba constraint is loose enough that a fresh resolve (uv tool install,
+    # which does NOT read uv.lock) picks numba 0.53.1 -> llvmlite 0.36.0, which supports
+    # only Python <3.10 and hard-fails the build on 3.13. numba 0.61 is the first release
+    # with 3.13 support. Without this floor the published install is broken.
+    "numba>=0.61",
     "click>=8.0",
     "rich>=13.0",
     "torch>=2.5",
