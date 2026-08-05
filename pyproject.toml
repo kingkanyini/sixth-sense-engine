@@ -1,0 +1,44 @@
+[project]
+name = "sixth-sense"
+version = "0.1.0"
+description = "6-agent video intelligence scanner — scans long-form video and identifies clip-worthy segments"
+requires-python = ">=3.13"
+dependencies = [
+    "pydantic>=2.0",
+    "ffmpeg-python>=0.2.0",
+    "opencv-python>=4.10",
+    "scenedetect[opencv]>=0.6",
+    "librosa>=0.10",
+    "click>=8.0",
+    "rich>=13.0",
+    "torch>=2.5",
+    "torchaudio>=2.5",
+    "faster-whisper>=1.0",
+]
+
+[project.scripts]
+sixth-sense = "sixth_sense.cli:main"
+
+[tool.uv.sources]
+# CUDA wheels only on Windows. The cu124 index publishes no macOS wheels, so an
+# unconditional pin made `uv sync` hard-fail on Apple Silicon with a resolver error
+# that named the index rather than the cause. Everywhere else now resolves from
+# PyPI (CPU on Linux/Intel, MPS on Apple Silicon).
+torch = [
+    { index = "pytorch-cu124", marker = "sys_platform == 'win32'" },
+]
+torchaudio = [
+    { index = "pytorch-cu124", marker = "sys_platform == 'win32'" },
+]
+
+[[tool.uv.index]]
+name = "pytorch-cu124"
+url = "https://download.pytorch.org/whl/cu124"
+explicit = true
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/sixth_sense"]
