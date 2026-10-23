@@ -19,6 +19,15 @@ from rich.table import Table
 from rich.panel import Panel
 from rich.prompt import Prompt, IntPrompt
 
+
+def _cuda_available() -> bool:
+    """True only if an NVIDIA GPU is usable. Macs and non-NVIDIA PCs fall back to CPU."""
+    try:
+        import ctranslate2
+        return ctranslate2.get_cuda_device_count() > 0
+    except Exception:
+        return False
+
 from sixth_sense.models import ScanConfig, ClipTarget
 
 console = Console()
@@ -112,7 +121,7 @@ def preprocess(video_path, output, frame_interval, audio_window, scene_threshold
         audio_window=audio_window,
         scene_threshold=scene_threshold,
         whisper_model=whisper_model,
-        whisper_device="cpu" if cpu else "cuda",
+        whisper_device="cpu" if cpu or not _cuda_available() else "cuda",
         skip_transcript=skip_transcript,
     )
 

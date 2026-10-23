@@ -23,7 +23,7 @@ def transcribe_audio(
     audio_path: str,
     model_size: str = "large-v3",
     device: str = "cuda",
-    compute_type: str = "float16",
+    compute_type: str | None = None,
     language: str | None = None,
 ) -> list[TranscriptSegment]:
     """Transcribe audio with word-level timestamps.
@@ -35,13 +35,16 @@ def transcribe_audio(
                    - "medium" — good balance
                    - "large-v3" — best accuracy (recommended, needs ~3GB VRAM)
         device: "cuda" for GPU (recommended) or "cpu" (slow but works)
-        compute_type: "float16" for GPU, "int8" for CPU, "float32" for max accuracy
+        compute_type: None (default) picks "float16" on GPU and "int8" on CPU.
+                      Pass "float32" for max accuracy. CPUs can't run float16.
         language: Language code (e.g., "en"). None = auto-detect.
 
     Returns:
         List of TranscriptSegment with word-level timestamps
     """
-    print(f"  Loading Whisper model ({model_size}) on {device}...")
+    if compute_type is None:
+        compute_type = "float16" if device == "cuda" else "int8"
+    print(f"  Loading Whisper model ({model_size}) on {device} ({compute_type})...")
 
     model = WhisperModel(
         model_size,
